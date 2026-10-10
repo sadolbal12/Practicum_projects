@@ -1,0 +1,35 @@
+version: '3'
+
+volumes:
+  pg_data:
+  static_volume:
+  media_volume:
+
+services:
+  db:
+    image: postgres:13
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+  backend:
+    image: sadolbal112/foodgram_backend:latest
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - db
+    volumes:
+      - ./data:/data
+      - static_volume:/django_static
+      - media_volume:/app/media
+  gateway:
+    image: sadolbal112/foodgram_gateway:latest
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - 8080:80
+    depends_on:
+      - backend
+    volumes:
+      - static_volume:/django_static
+      - media_volume:/media/
